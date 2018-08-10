@@ -16,7 +16,7 @@ const fulfill_pattern = /\{([^{}:\s]+)(?::([^{}:\s]+))?\}/g;
 // [1] path
 // [2] encoding
 
-export default function fulfill(string, container, encoder) {
+export default Object.freeze(function fulfill(string, container, encoder) {
 
 // The fulfill function takes
 //      string: containing symbolic variables.
@@ -102,4 +102,4 @@ export default function fulfill(string, container, encoder) {
             }
         }
     );
-}
+});
