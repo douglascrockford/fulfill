@@ -4,13 +4,13 @@ Douglas Crockford
 2018-08-10
 Public Domain
 
-The fulfill JavaScript function is a safer and more international-
-izationable alternative to template string interprepolation. It is safer
-because it does not give the template variables access to all of the
-variables in the function scope. It is more internationalizationable
-because the string can come from a source other than a string literal in
-the same file. For example, the string could come from a JSON bundle
-translation service.
+The fulfill JavaScript function is a safer and more internationalizationable
+alternative to template string interprepolation. It is safer because it does not
+give the template variables access to all of the variables in the function
+scope, and it has a default encoder that removes angle brackets. It is more
+internationalizationable because the string can come from a source other than a
+string literal in the same file. For example, the string could come from a JSON
+bundle translation service.
 
 It is packaged as a module.
 
@@ -21,14 +21,13 @@ The string can contain symbolic variables in either of two forms:
     {path}
     {path:encoding}
 
-The path is a name or integer or a series of names or integers separated
-by periods that finds a value in the values. If all goes well, the
-symbolic variable will be replaced with the encoded value. If anything
-does not go well, then the symbolic variable is left alone. This makes
-debugging easier. It also allows for literal braces in the string
-without escapement.
+The path is a name or integer or a series of names or integers separated by
+periods that finds a value in the values argument. If all goes well, the
+symbolic variable will be replaced with the encoded value. If anything does not
+go well, then the symbolic variable is left alone. This makes debugging easier.
+It also allows for literal braces in the string without escapement.
 
-The values can be an object or array that supplies the values that will
+The values argument can be an object or array that supplies the values that will
 be substituted. It can be a nested data structure.
 
 The values can also be a function that returns the value that should be
@@ -53,7 +52,7 @@ The default encoder removes angle brackets, making things safe for HTML.
             greeting: "hello",
             my: {noun: "world"}
         },
-        function initial_caps(replacement) {
-            return replacement.slice(0, 1).toUpperCase() + replacement.slice(1);
+        function initial_caps(value) {
+            return value.slice(0, 1).toUpperCase() + value.slice(1);
         }
-    );                  // example is "Hello, World!"
+    );                                          // example is "Hello, World!"
