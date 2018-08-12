@@ -1,14 +1,16 @@
 // fulfill.js
 // Douglas Crockford
-// 2018-08-10
+// 2018-08-11
 
 // Public Domain
 
 /*property
-    reduce, replace, split
+    freeze, reduce, replace, split
 */
 
-const fulfill_pattern = /\{([^{}:\s]+)(?::([^{}:\s]+))?\}/g;
+const rx_angle = /<|>/g;
+
+const rx_syntactic_variable = /\{([^{}:\s]+)(?::([^{}:\s]+))?\}/g;
 
 // pattern capturing groups:
 
@@ -16,14 +18,28 @@ const fulfill_pattern = /\{([^{}:\s]+)(?::([^{}:\s]+))?\}/g;
 // [1] path
 // [2] encoding
 
-export default Object.freeze(function fulfill(string, container, encoder) {
+export default Object.freeze(function fulfill(
+    string,
+    container,
+    encoder = function (replacement) {
+        if (typeof replacement === "string") {
+            return replacement.replace(rx_angle, "");
+        }
+        if (
+            typeof replacement === "number"
+            || typeof replacement === "boolean"
+        ) {
+            return String(replacement);
+        }
+    }
+) {
 
 // The fulfill function takes
 //      string: containing symbolic variables.
 //      container: an object or array containing values to
 //          replace the symbolic variables, or a function.
 //      encoder: (optional) An encoder function or an object of
-//          encoder functions.
+//          encoder functions. The default is to remove all angle brackets.
 
 // Most of the work is done by the string replace method, which
 // will find the symbolic variables, presenting them here as the
@@ -31,7 +47,7 @@ export default Object.freeze(function fulfill(string, container, encoder) {
 // string.
 
     return string.replace(
-        fulfill_pattern,
+        rx_syntactic_variable,
         function (original, path, encoding = "") {
             try {
 
@@ -57,23 +73,13 @@ export default Object.freeze(function fulfill(string, container, encoder) {
                 }
 
 // If an encoder object was provided, call wun of its functions.
+// Otherwise, call the encoder function.
 
-                if (typeof encoder === "object") {
-                    replacement = encoder[encoding](
-                        replacement,
-                        path,
-                        encoding
-                    );
-
-// If an encoder function was provided, call it.
-
-                } else if (encoder !== undefined) {
-                    replacement = encoder(
-                        replacement,
-                        path,
-                        encoding
-                    );
-                }
+                replacement = (
+                    typeof encoder === "object"
+                    ? encoder[encoding]
+                    : encoder
+                )(replacement, path, encoding);
 
 // If the replacement is a number or boolean,
 // convert it to a string.

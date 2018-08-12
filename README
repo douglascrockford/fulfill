@@ -43,20 +43,17 @@ The encoder can be a function that returns the value encoded as a safe string.
 The encoder can also be an object of encoder functions. The property names are
 encodings.
 
+The default encoder removes angle brackets, making things safe for HTML.
+
     import fulfill from "./fulfill.js";
 
     const example = fulfill(
         "{greeting}, {my.noun:upper}!",
         {
-            greeting: "Hello",
-            my: {noun: "World"}
+            greeting: "hello",
+            my: {noun: "world"}
         },
-        {
-            upper: function upper(string) {
-                return string.toUpperCase();
-            },
-            "": function identity(string) {
-                return string;
-            }
+        function initial_caps(replacement) {
+            return replacement.slice(0, 1).toUpperCase() + replacement.slice(1);
         }
-    );                  // example is "Hello, WORLD!"
+    );                  // example is "Hello, World!"
