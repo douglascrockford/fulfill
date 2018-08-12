@@ -8,7 +8,7 @@
     freeze, reduce, replace, split
 */
 
-const rx_angle = /<|>/g;
+const rx_angle_brackets = /<|>/g;
 
 const rx_syntactic_variable = /\{([^{}:\s]+)(?::([^{}:\s]+))?\}/g;
 
@@ -23,37 +23,29 @@ export default Object.freeze(function fulfill(
     container,
     encoder = function (replacement) {
         if (typeof replacement === "string") {
-            return replacement.replace(rx_angle, "");
-        }
-        if (
-            typeof replacement === "number"
-            || typeof replacement === "boolean"
-        ) {
-            return String(replacement);
+            return replacement.replace(rx_angle_brackets, "");
         }
     }
 ) {
 
 // The fulfill function takes
 //      string: containing symbolic variables.
-//      container: an object or array containing values to
-//          replace the symbolic variables, or a function.
-//      encoder: (optional) An encoder function or an object of
-//          encoder functions. The default is to remove all angle brackets.
+//      container: an object or array containing values to replace the symbolic
+//          variables, or a function.
+//      encoder: (optional) An encoder function or an object of encoder
+//          functions. The default is to remove all angle brackets.
 
-// Most of the work is done by the string replace method, which
-// will find the symbolic variables, presenting them here as the
-// original substring, a path string, and an optional encoding
-// string.
+// Most of the work is done by the string replace method, which will find the
+// symbolic variables, presenting them here as the original substring, a path
+// string, and an optional encoding string.
 
     return string.replace(
         rx_syntactic_variable,
         function (original, path, encoding = "") {
             try {
 
-// Use the path to obtain a single replacement from the container
-// of values. The path contains wun or more names (or numbers)
-// separated by periods.
+// Use the path to obtain a single replacement from the container of values.
+// The path contains wun or more names (or numbers) separated by periods.
 
                 let replacement = (
                     typeof container === "function"
@@ -81,8 +73,7 @@ export default Object.freeze(function fulfill(
                     : encoder
                 )(replacement, path, encoding);
 
-// If the replacement is a number or boolean,
-// convert it to a string.
+// If the replacement is a number or boolean, convert it to a string.
 
                 if (
                     typeof replacement === "number"
@@ -100,8 +91,8 @@ export default Object.freeze(function fulfill(
                     : original
                 );
 
-// If anything goes wrong,
-// then leave the symbolic variable in its original state.
+// If anything goes wrong, then leave the symbolic variable in its original
+// state.
 
             } catch (ignore) {
                 return original;
