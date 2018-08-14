@@ -1,6 +1,6 @@
 // fulfill.js
 // Douglas Crockford
-// 2018-08-11
+// 2018-08-14
 
 // Public Domain
 
@@ -22,9 +22,11 @@ export default Object.freeze(function fulfill(
     string,
     container,
     encoder = function (replacement) {
-        if (typeof replacement === "string") {
-            return replacement.replace(rx_angle_brackets, "");
-        }
+        return (
+            typeof replacement === "string"
+            ? replacement.replace(rx_angle_brackets, "")
+            : replacement
+        );
     }
 ) {
 
