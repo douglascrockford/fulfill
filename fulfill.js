@@ -1,6 +1,6 @@
 // fulfill.js
 // Douglas Crockford
-// 2018-08-14
+// 2018-10-03
 
 // Public Domain
 
@@ -8,38 +8,33 @@
     freeze, reduce, replace, split
 */
 
-const rx_angle_brackets = /<|>/g;
+const rx_delete_default = /[<>&%"\\]/g;
 
 const rx_syntactic_variable = /\{([^{}:\s]+)(?::([^{}:\s]+))?\}/g;
 
-// pattern capturing groups:
+//. Capturing groups:
+//.     [0] original (symbolic variable wrapped in braces)
+//.     [1] path
+//.     [2] encoding
 
-// [0] original (symbolic variable wrapped in braces)
-// [1] path
-// [2] encoding
+function default_encoder(replacement) {
+    return String(replacement).replace(rx_delete_default, "");
+}
 
 export default Object.freeze(function fulfill(
     string,
     container,
-    encoder = function (replacement) {
-        return (
-            typeof replacement === "string"
-            ? replacement.replace(rx_angle_brackets, "")
-            : replacement
-        );
-    }
+    encoder = default_encoder
 ) {
 
-// The fulfill function takes
-//      string: containing symbolic variables.
-//      container: an object or array containing values to replace the symbolic
-//          variables, or a function.
-//      encoder: (optional) An encoder function or an object of encoder
-//          functions. The default is to remove all angle brackets.
+// The 'fulfill' function takes a string containing symbolic variables, a
+// generator function or an object or array containing values to replace
+// the symbolic variables, and an optional encoder function or object of encoder
+// functions. The default encoder removes all angle brackets.
 
-// Most of the work is done by the string replace method, which will find the
-// symbolic variables, presenting them here as the original substring, a path
-// string, and an optional encoding string.
+// Most of the work is done by the string 'replace' method that finds the
+// symbolic variables, presenting them as the original substring, a path string,
+// and an optional encoding string.
 
     return string.replace(
         rx_syntactic_variable,
@@ -60,14 +55,15 @@ export default Object.freeze(function fulfill(
                     )
                 );
 
-// If the replacement value is a function, call it.
+// If the replacement value is a function,
+// call it to obtain a replacement value.
 
                 if (typeof replacement === "function") {
                     replacement = replacement(path, encoding);
                 }
 
 // If an encoder object was provided, call wun of its functions.
-// Otherwise, call the encoder function.
+// If the encoder is a function, call it.
 
                 replacement = (
                     typeof encoder === "object"
@@ -93,8 +89,8 @@ export default Object.freeze(function fulfill(
                     : original
                 );
 
-// If anything goes wrong, then leave the symbolic variable in its original
-// state.
+// If anything goes wrong, then leave the symbolic variable
+// in its original state.
 
             } catch (ignore) {
                 return original;
